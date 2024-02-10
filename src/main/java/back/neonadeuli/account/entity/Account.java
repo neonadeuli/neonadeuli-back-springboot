@@ -13,6 +13,7 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -28,6 +29,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Account {
 
+    public static final int NAME_MAX_SIZE = 20;
+    public static final int NICKNAME_MIN_SIZE = 2;
+    public static final int NICKNAME_MAX_SIZE = 30;
+    public static final int LOGIN_ID_MIN_SIZE = 4;
+    public static final int LOGIN_ID_MAX_SIZE = 30;
+    public static final int EMAIL_MAX_SIZE = 320;
+
     @Id
     @Column(name = "account_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,22 +47,36 @@ public class Account {
     Picture picture;
 
     @Column
-    @Size(max = 20)
+    @Size(max = NAME_MAX_SIZE)
     private String name;
 
     @Column
     @NotEmpty
-    @Size(max = 30)
+    @Size(min = NICKNAME_MIN_SIZE, max = NICKNAME_MAX_SIZE)
     private String nickname;
 
     @Column
     @NotEmpty
-    @Size(max = 30)
+    @Size(min = LOGIN_ID_MIN_SIZE, max = LOGIN_ID_MAX_SIZE)
     private String loginId;
+
+    @Column(columnDefinition = "char(60)")
+    @NotEmpty
+    private String password;
 
     @Column
     @NotEmpty
-    @Size(max = 320)
+    @Email
+    @Size(max = EMAIL_MAX_SIZE)
     private String email;
+
+    public Account(Picture picture, String name, String nickname, String loginId, String password, String email) {
+        this.picture = picture;
+        this.name = name;
+        this.nickname = nickname;
+        this.loginId = loginId;
+        this.password = password;
+        this.email = email;
+    }
 }
 
