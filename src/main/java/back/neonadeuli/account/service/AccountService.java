@@ -10,14 +10,17 @@ import back.neonadeuli.account.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AccountService {
 
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public SignupResponseDto signup(SignupRequestDto requestDto) {
         Account saveAccount = accountRepository.save(requestDto.toEntity(passwordEncoder));
         return new SignupResponseDto(saveAccount.getId());
