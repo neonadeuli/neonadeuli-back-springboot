@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Picture {
 
-    public static Picture DEFAULT_PICTURE = new Picture(1L, "", "", "");
+    public static final Picture DEFAULT_PICTURE = new Picture(1L, "", "", "");
 
     @Id
     @Column(name = "picture_id")
