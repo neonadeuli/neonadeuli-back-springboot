@@ -19,7 +19,7 @@ public class SecurityConfig {
 
         http.formLogin(AbstractHttpConfigurer::disable);
 
-        http.authorizeHttpRequests((authorizeRequests) -> {
+        http.authorizeHttpRequests(authorizeRequests -> {
             authorizeRequests.requestMatchers("/accounts/signup", "/accounts/login")
                     .permitAll();
 
