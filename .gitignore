@@ -180,3 +180,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Properties
+src/main/resources/*.properties
+!src/main/resources/application.properties
