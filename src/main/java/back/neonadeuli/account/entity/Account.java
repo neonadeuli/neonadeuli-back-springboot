@@ -55,7 +55,7 @@ public class Account {
     @Size(min = NICKNAME_MIN_SIZE, max = NICKNAME_MAX_SIZE)
     private String nickname;
 
-    @Column
+    @Column(name = "login_id")
     @NotEmpty
     @Size(min = LOGIN_ID_MIN_SIZE, max = LOGIN_ID_MAX_SIZE)
     private String loginId;
