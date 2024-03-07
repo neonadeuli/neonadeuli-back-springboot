@@ -18,7 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "`like`")
+@Table
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Like {

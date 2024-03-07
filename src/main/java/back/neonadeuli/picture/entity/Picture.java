@@ -13,7 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "pictures")
+@Table(name = "Pictures")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -26,15 +26,15 @@ public class Picture {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "folder_name")
+    @Column
     @NotNull
     private String folderName;
 
-    @Column(name = "origin_name")
+    @Column
     @NotNull
     private String originName;
 
-    @Column(name = "saved_name")
+    @Column
     @NotNull
     private String savedName;
 
