@@ -38,7 +38,7 @@ public class Post {
     @NotNull
     private Account account;
 
-    @Column(name = "location_available")
+    @Column
     @NotNull
     private Boolean locationAvailable;
 
