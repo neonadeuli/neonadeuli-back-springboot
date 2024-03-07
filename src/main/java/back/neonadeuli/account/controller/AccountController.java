@@ -1,15 +1,17 @@
 package back.neonadeuli.account.controller;
 
-import back.neonadeuli.account.dto.request.LoginRequestDto;
-import back.neonadeuli.account.dto.request.SignupRequestDto;
-import back.neonadeuli.account.dto.response.LoginResponseDto;
-import back.neonadeuli.account.dto.response.SignupResponseDto;
+import back.neonadeuli.account.exception.LoginFailureException;
+import back.neonadeuli.account.model.dto.request.LoginRequestDto;
+import back.neonadeuli.account.model.dto.request.SignupRequestDto;
+import back.neonadeuli.account.model.dto.response.LoginResponseDto;
+import back.neonadeuli.account.model.dto.response.SignupResponseDto;
 import back.neonadeuli.account.service.AccountService;
-import back.neonadeuli.exception.ValidFailureException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,13 +25,10 @@ public class AccountController {
 
     private final AccountService accountService;
 
+
     @PostMapping("/signup")
     public ResponseEntity<SignupResponseDto> signup(@RequestBody @Valid SignupRequestDto requestDto,
                                                     BindingResult bindingResult) {
-
-        if (bindingResult.hasErrors()) {
-            throw new ValidFailureException(bindingResult);
-        }
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(accountService.signup(requestDto));
@@ -37,12 +36,13 @@ public class AccountController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginRequestDto requestDto,
-                                                  BindingResult bindingResult) {
+                                                  BindingResult bindingResult, HttpServletRequest request) {
 
-        if (bindingResult.hasErrors()) {
-            throw new ValidFailureException(bindingResult);
+        try {
+            LoginResponseDto responseDto = accountService.getHttpSession(requestDto, request);
+            return ResponseEntity.ok(responseDto);
+        } catch (AuthenticationException e) {
+            throw new LoginFailureException();
         }
-
-        return ResponseEntity.ok(accountService.login(requestDto));
     }
 }
