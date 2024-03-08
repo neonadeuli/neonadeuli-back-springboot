@@ -7,6 +7,7 @@ import back.neonadeuli.account.model.dto.response.SignupResponseDto;
 import back.neonadeuli.account.repository.AccountRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -43,5 +44,13 @@ public class AccountService {
         HttpSession session = request.getSession(true);
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext());
+    }
+
+    public void doLogout(HttpSession session) {
+        SecurityContextHolder.clearContext();
+
+        if (Objects.nonNull(session)) {
+            session.invalidate();
+        }
     }
 }
