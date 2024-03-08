@@ -6,6 +6,7 @@ import back.neonadeuli.account.model.dto.request.SignupRequestDto;
 import back.neonadeuli.account.model.dto.response.SignupResponseDto;
 import back.neonadeuli.account.service.AccountService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
 
     private final AccountService accountService;
-
 
     @PostMapping("/signup")
     public ResponseEntity<SignupResponseDto> signup(@RequestBody @Valid SignupRequestDto requestDto,
@@ -43,5 +43,12 @@ public class AccountController {
         } catch (AuthenticationException e) {
             throw new LoginFailureException();
         }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        accountService.doLogout(session);
+        return ResponseEntity.ok().build();
     }
 }
