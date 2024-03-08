@@ -3,7 +3,6 @@ package back.neonadeuli.account.service;
 import back.neonadeuli.account.entity.Account;
 import back.neonadeuli.account.model.dto.request.LoginRequestDto;
 import back.neonadeuli.account.model.dto.request.SignupRequestDto;
-import back.neonadeuli.account.model.dto.response.LoginResponseDto;
 import back.neonadeuli.account.model.dto.response.SignupResponseDto;
 import back.neonadeuli.account.repository.AccountRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,7 +32,7 @@ public class AccountService {
         return new SignupResponseDto(saveAccount.getId());
     }
 
-    public LoginResponseDto getHttpSession(LoginRequestDto requestDto, HttpServletRequest request) {
+    public void doLogin(LoginRequestDto requestDto, HttpServletRequest request) {
         UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(
                 requestDto.getLoginId(),
                 requestDto.getPassword());
@@ -44,6 +43,5 @@ public class AccountService {
         HttpSession session = request.getSession(true);
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext());
-        return new LoginResponseDto(session.getId());
     }
 }

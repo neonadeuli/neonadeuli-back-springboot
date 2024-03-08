@@ -3,7 +3,6 @@ package back.neonadeuli.account.controller;
 import back.neonadeuli.account.exception.LoginFailureException;
 import back.neonadeuli.account.model.dto.request.LoginRequestDto;
 import back.neonadeuli.account.model.dto.request.SignupRequestDto;
-import back.neonadeuli.account.model.dto.response.LoginResponseDto;
 import back.neonadeuli.account.model.dto.response.SignupResponseDto;
 import back.neonadeuli.account.service.AccountService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,12 +34,12 @@ public class AccountController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginRequestDto requestDto,
-                                                  BindingResult bindingResult, HttpServletRequest request) {
+    public ResponseEntity<Void> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult,
+                                      HttpServletRequest request) {
 
         try {
-            LoginResponseDto responseDto = accountService.getHttpSession(requestDto, request);
-            return ResponseEntity.ok(responseDto);
+            accountService.doLogin(requestDto, request);
+            return ResponseEntity.ok().build();
         } catch (AuthenticationException e) {
             throw new LoginFailureException();
         }
