@@ -11,7 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,7 +40,7 @@ public class AccountController {
         try {
             accountService.doLogin(requestDto, request);
             return ResponseEntity.ok().build();
-        } catch (AuthenticationException e) {
+        } catch (BadCredentialsException e) {
             throw new LoginFailureException();
         }
     }
