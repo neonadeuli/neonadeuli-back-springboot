@@ -1,7 +1,6 @@
 package back.neonadeuli.account.service;
 
 import back.neonadeuli.account.entity.Account;
-import back.neonadeuli.account.model.authonticate.AccountDetail;
 import back.neonadeuli.account.model.dto.request.LoginRequestDto;
 import back.neonadeuli.account.model.dto.request.SignupRequestDto;
 import back.neonadeuli.account.model.dto.response.LoginResponseDto;
@@ -14,9 +13,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
@@ -25,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class AccountService implements UserDetailsService {
+public class AccountService {
 
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
@@ -35,13 +31,6 @@ public class AccountService implements UserDetailsService {
     public SignupResponseDto signup(SignupRequestDto requestDto) {
         Account saveAccount = accountRepository.save(requestDto.toEntity(passwordEncoder));
         return new SignupResponseDto(saveAccount.getId());
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Account account = accountRepository.findByLoginId(username)
-                .orElseThrow(() -> new UsernameNotFoundException(username + "을 찾을 수 없음"));
-        return new AccountDetail(account);
     }
 
     public LoginResponseDto getHttpSession(LoginRequestDto requestDto, HttpServletRequest request) {
