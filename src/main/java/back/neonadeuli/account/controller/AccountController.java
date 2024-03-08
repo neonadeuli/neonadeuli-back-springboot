@@ -1,15 +1,17 @@
 package back.neonadeuli.account.controller;
 
-import back.neonadeuli.account.dto.request.LoginRequestDto;
-import back.neonadeuli.account.dto.request.SignupRequestDto;
-import back.neonadeuli.account.dto.response.LoginResponseDto;
-import back.neonadeuli.account.dto.response.SignupResponseDto;
+import back.neonadeuli.account.exception.LoginFailureException;
+import back.neonadeuli.account.model.dto.request.LoginRequestDto;
+import back.neonadeuli.account.model.dto.request.SignupRequestDto;
+import back.neonadeuli.account.model.dto.response.SignupResponseDto;
 import back.neonadeuli.account.service.AccountService;
-import back.neonadeuli.exception.ValidFailureException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,22 +29,26 @@ public class AccountController {
     public ResponseEntity<SignupResponseDto> signup(@RequestBody @Valid SignupRequestDto requestDto,
                                                     BindingResult bindingResult) {
 
-        if (bindingResult.hasErrors()) {
-            throw new ValidFailureException(bindingResult);
-        }
-
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(accountService.signup(requestDto));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginRequestDto requestDto,
-                                                  BindingResult bindingResult) {
+    public ResponseEntity<Void> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult,
+                                      HttpServletRequest request) {
 
-        if (bindingResult.hasErrors()) {
-            throw new ValidFailureException(bindingResult);
+        try {
+            accountService.doLogin(requestDto, request);
+            return ResponseEntity.ok().build();
+        } catch (BadCredentialsException e) {
+            throw new LoginFailureException();
         }
+    }
 
-        return ResponseEntity.ok(accountService.login(requestDto));
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        accountService.doLogout(session);
+        return ResponseEntity.ok().build();
     }
 }
