@@ -1,4 +1,4 @@
-package back.neonadeuli.account.dto.request;
+package back.neonadeuli.account.model.dto.request;
 
 import static back.neonadeuli.account.entity.Account.LOGIN_ID_MAX_SIZE;
 import static back.neonadeuli.account.entity.Account.LOGIN_ID_MIN_SIZE;
