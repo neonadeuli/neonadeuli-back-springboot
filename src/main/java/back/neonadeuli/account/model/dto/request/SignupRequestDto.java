@@ -37,8 +37,8 @@ public class SignupRequestDto {
     @Size(max = Account.EMAIL_MAX_SIZE)
     private String email;
 
-    public Account toEntity(PasswordEncoder passwordEncoder) {
-        return new Account(Picture.DEFAULT_PICTURE, getName(), getNickname(), getLoginId(),
+    public Account toEntity(Picture picture, PasswordEncoder passwordEncoder) {
+        return new Account(picture, getName(), getNickname(), getLoginId(),
                 passwordEncoder.encode(password), getEmail());
     }
 }
