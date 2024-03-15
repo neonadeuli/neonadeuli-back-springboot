@@ -4,16 +4,20 @@ import back.neonadeuli.account.entity.Account;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class AccountDetail implements UserDetails {
 
+    @Getter
+    private final Long accountId;
     private final String loginId;
     private final String password;
     private final Set<GrantedAuthority> authorities;
 
     public AccountDetail(Account account) {
+        this.accountId = account.getId();
         this.loginId = account.getLoginId();
         this.password = account.getPassword();
         this.authorities = Collections.emptySet();
