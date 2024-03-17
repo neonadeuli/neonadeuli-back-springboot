@@ -1,6 +1,7 @@
 package back.neonadeuli.post.entity;
 
 import back.neonadeuli.account.entity.Account;
+import back.neonadeuli.location.entity.Location;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,12 +11,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.geo.Point;
 
 @Entity
 @Table(name = "posts")
@@ -46,9 +47,15 @@ public class Post {
     @NotNull
     private String content;
 
-    @Column
-    private Point location;
+    @OneToOne
+    @JoinColumn(name = "location_id")
+    Location location;
 
-    @Column(name = "h3_index")
-    private Long h3Index;
+    public Post(Visibility visibility, Account account, Boolean locationAvailable, String content, Location location) {
+        this.visibility = visibility;
+        this.account = account;
+        this.locationAvailable = locationAvailable;
+        this.content = content;
+        this.location = location;
+    }
 }
