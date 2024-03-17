@@ -30,7 +30,11 @@ public enum Resolution {
     }
 
     private List<Long> latLngToH3Indexes(LatLng latLng, int cellSpacingDistance) {
-        long cell = H3.latLngToCell(latLng.lat, latLng.lng, this.level);
-        return H3.gridDisk(cell, cellSpacingDistance);
+        long middleH3Index = latLngToH3Index(latLng);
+        return H3.gridDisk(middleH3Index, cellSpacingDistance);
+    }
+
+    public long latLngToH3Index(LatLng latLng) {
+        return H3.latLngToCell(latLng.lat, latLng.lng, this.level);
     }
 }
