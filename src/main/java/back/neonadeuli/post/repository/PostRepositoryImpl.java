@@ -13,9 +13,7 @@ import back.neonadeuli.post.dto.response.PostResponseDto;
 import back.neonadeuli.post.dto.response.QPostResponseDto;
 import back.neonadeuli.post.entity.Visibility;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.querydsl.spatial.SpatialOps;
 import com.querydsl.spatial.locationtech.jts.JTSGeometryExpressions;
 import com.uber.h3core.util.LatLng;
 import java.util.EnumMap;
@@ -67,10 +65,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .innerJoin(account.picture, picture)
                 .innerJoin(post.location, location)
 
-                .where(Expressions.booleanOperation(SpatialOps.WITHIN, location.point,
-                                JTSGeometryExpressions.asJTSGeometry(
-                                                locationSupplier.newPoint(latLng.lat, latLng.lng))
-                                        .buffer(geometryDistance.distance())),
+                .where(JTSGeometryExpressions.asJTSGeometry(locationSupplier.newPoint(latLng.lat, latLng.lng))
+                                .buffer(geometryDistance.distance())
+                                .contains(location.point),
                         post.locationAvailable.isTrue(),
                         post.visibility.eq(Visibility.PUBLIC)
                                 .or(accountPrivatePost(accountDetail))
