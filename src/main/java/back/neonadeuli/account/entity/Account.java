@@ -4,6 +4,7 @@ import back.neonadeuli.picture.entity.Picture;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,6 +27,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "oauth_type_code", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorValue(value = "NONE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Account {
 
@@ -42,7 +44,7 @@ public class Account {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "picture_id")
+    @JoinColumn(name = "picture_saved_name")
     @NotNull
     Picture picture;
 

@@ -14,7 +14,8 @@ public class ValidFailureException extends CustomException {
     private static String createExceptionMessage(BindingResult bindingResult) {
         return bindingResult.getFieldErrors()
                 .stream()
-                .collect(Collectors.toMap(FieldError::getField, ValidFailureException::getDefaultMessage))
+                .collect(Collectors.toMap(FieldError::getField, ValidFailureException::getDefaultMessage,
+                        (oldValue, newValue) -> oldValue + ", " + newValue))
                 .toString();
     }
 

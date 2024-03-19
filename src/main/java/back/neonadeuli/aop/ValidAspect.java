@@ -5,10 +5,11 @@ import java.util.Arrays;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 
 @Aspect
-//@Component
+@Component
 public class ValidAspect {
 
     @Before("execution(* back.neonadeuli..controller..*.*(.., @jakarta.validation.Valid (*), ..))")

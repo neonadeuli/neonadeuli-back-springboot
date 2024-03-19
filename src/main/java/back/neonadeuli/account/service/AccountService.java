@@ -5,6 +5,8 @@ import back.neonadeuli.account.model.dto.request.LoginRequestDto;
 import back.neonadeuli.account.model.dto.request.SignupRequestDto;
 import back.neonadeuli.account.model.dto.response.SignupResponseDto;
 import back.neonadeuli.account.repository.AccountRepository;
+import back.neonadeuli.picture.entity.Picture;
+import back.neonadeuli.picture.repository.PictureRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.util.Objects;
@@ -24,12 +26,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final PictureRepository pictureRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
     @Transactional
     public SignupResponseDto signup(SignupRequestDto requestDto) {
-        Account saveAccount = accountRepository.save(requestDto.toEntity(passwordEncoder));
+        Picture picture = pictureRepository.getReferenceById(Picture.DEFAULT_UUID);
+        Account saveAccount = accountRepository.save(requestDto.toEntity(picture, passwordEncoder));
         return new SignupResponseDto(saveAccount.getId());
     }
 
