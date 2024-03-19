@@ -49,6 +49,15 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                                                GeometryDistance geometryDistance,
                                                Pageable pageable) {
 
+        return retrievePosts(accountDetail, pageable,
+                JTSGeometryExpressions.asJTSGeometry(locationSupplier.newPoint(latLng.lat, latLng.lng))
+                        .buffer(geometryDistance.distance())
+                        .contains(location.point));
+    }
+
+    private List<PostResponseDto> retrievePosts(AccountDetail accountDetail, Pageable pageable,
+                                                BooleanExpression expression) {
+
         return queryFactory
 
                 .select(new QPostResponseDto(
@@ -65,9 +74,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .innerJoin(account.picture, picture)
                 .innerJoin(post.location, location)
 
-                .where(JTSGeometryExpressions.asJTSGeometry(locationSupplier.newPoint(latLng.lat, latLng.lng))
-                                .buffer(geometryDistance.distance())
-                                .contains(location.point),
+                .where(expression,
                         post.locationAvailable.isTrue(),
                         post.visibility.eq(Visibility.PUBLIC)
                                 .or(accountPrivatePost(accountDetail))
@@ -86,7 +93,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
             throw new IllegalStateException();
         }).apply(h3Indexes);
 
-        return retrievePostByH3Indexes(accountDetail, pageable, expression);
+        return retrievePosts(accountDetail, pageable, expression);
     }
 
     private BooleanExpression res4Expression(List<Long> h3Res4Indexes) {
@@ -95,36 +102,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     private BooleanExpression res6Expression(List<Long> h3Res6Indexes) {
         return location.h3Res6.in(h3Res6Indexes);
-    }
-
-    private List<PostResponseDto> retrievePostByH3Indexes(AccountDetail accountDetail, Pageable pageable,
-                                                          BooleanExpression locationH3IndexIn) {
-        return queryFactory
-
-                .select(new QPostResponseDto(
-                        post.id,
-                        account.id,
-                        account.nickname,
-                        picture,
-                        post.content,
-                        location.point))
-
-                .from(post)
-
-                .innerJoin(post.account, account)
-                .innerJoin(account.picture, picture)
-                .innerJoin(post.location, location)
-
-                .where(locationH3IndexIn,
-                        post.locationAvailable.isTrue(),
-                        post.visibility.eq(Visibility.PUBLIC)
-                                .or(accountPrivatePost(accountDetail))
-                )
-
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-
-                .fetch();
     }
 
     private static BooleanExpression accountPrivatePost(AccountDetail accountDetail) {
