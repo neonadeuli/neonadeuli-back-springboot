@@ -40,8 +40,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         EnumMap<Resolution, Supplier<NumberPath<Long>>> resolutionFunctions =
                 new EnumMap<>(Resolution.class);
 
-        resolutionFunctions.put(Resolution.RES_6, this::res6Path);
-        resolutionFunctions.put(Resolution.RES_4, this::res4Path);
+        resolutionFunctions.put(Resolution.RES_6, () -> location.h3Res6);
+        resolutionFunctions.put(Resolution.RES_4, () -> location.h3Res4);
 
         return resolutionFunctions;
     }
@@ -109,14 +109,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 SQLExpressions.rowNumber().over().partitionBy(resPath));
 
         return retrievePosts(accountDetail, pageable, resPath.in(h3Indexes), orderSpecifier);
-    }
-
-    private NumberPath<Long> res4Path() {
-        return location.h3Res4;
-    }
-
-    private NumberPath<Long> res6Path() {
-        return location.h3Res6;
     }
 
     private static BooleanExpression accountPrivatePost(AccountDetail accountDetail) {
