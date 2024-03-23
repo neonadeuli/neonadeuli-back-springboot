@@ -1,5 +1,10 @@
 package back.neonadeuli.post.entity;
 
+import static jakarta.persistence.CascadeType.DETACH;
+import static jakarta.persistence.CascadeType.MERGE;
+import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.CascadeType.REFRESH;
+
 import back.neonadeuli.picture.entity.Picture;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -32,7 +37,7 @@ public class PostPicture {
     Post post;
 
     @MapsId("savedName")
-    @ManyToOne
+    @ManyToOne(cascade = {PERSIST, MERGE, REFRESH, DETACH})
     @JoinColumn(name = "saved_name")
     Picture picture;
 
