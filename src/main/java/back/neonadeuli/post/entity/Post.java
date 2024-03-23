@@ -7,6 +7,7 @@ import static jakarta.persistence.CascadeType.REFRESH;
 
 import back.neonadeuli.account.entity.Account;
 import back.neonadeuli.location.entity.Location;
+import back.neonadeuli.picture.entity.Picture;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -23,6 +24,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -69,5 +71,14 @@ public class Post {
         this.locationAvailable = locationAvailable;
         this.content = content;
         this.location = location;
+    }
+
+    public void addPictures(List<Picture> pictures) {
+        List<PostPicture> convertPostPictures = pictures.stream()
+                .filter(Objects::nonNull)
+                .map(picture -> new PostPicture(this, picture))
+                .toList();
+
+        postPictures.addAll(convertPostPictures);
     }
 }
