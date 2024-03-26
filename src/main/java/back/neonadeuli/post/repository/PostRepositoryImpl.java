@@ -12,31 +12,36 @@ import back.neonadeuli.location.model.Resolution;
 import back.neonadeuli.post.dto.response.PostResponseDto;
 import back.neonadeuli.post.dto.response.QPostResponseDto;
 import back.neonadeuli.post.entity.Visibility;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.spatial.locationtech.jts.JTSGeometryExpressions;
+import com.querydsl.sql.SQLExpressions;
 import com.uber.h3core.util.LatLng;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 
 @RequiredArgsConstructor
 public class PostRepositoryImpl implements PostRepositoryCustom {
 
-    private final Map<Resolution, Function<List<Long>, BooleanExpression>> resolutionExpressions =
-            createResolutionFunctions();
+    private final Map<Resolution, Supplier<NumberPath<Long>>> resolutionPaths =
+            createResolutionPathSupplier();
 
-    private Map<Resolution, Function<List<Long>, BooleanExpression>> createResolutionFunctions() {
+    private Map<Resolution, Supplier<NumberPath<Long>>> createResolutionPathSupplier() {
 
-        EnumMap<Resolution, Function<List<Long>, BooleanExpression>> resolutionFunctions =
+        EnumMap<Resolution, Supplier<NumberPath<Long>>> resolutionFunctions =
                 new EnumMap<>(Resolution.class);
 
-        resolutionFunctions.put(Resolution.RES_6, this::res6Expression);
-        resolutionFunctions.put(Resolution.RES_4, this::res4Expression);
+        resolutionFunctions.put(Resolution.RES_6, () -> location.h3Res6);
+        resolutionFunctions.put(Resolution.RES_4, () -> location.h3Res4);
 
         return resolutionFunctions;
     }
@@ -49,6 +54,19 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                                                GeometryDistance geometryDistance,
                                                Pageable pageable) {
 
+        BooleanExpression contains = JTSGeometryExpressions.asJTSGeometry(
+                        locationSupplier.newPoint(latLng.lat, latLng.lng))
+                .buffer(geometryDistance.distance())
+                .contains(location.point);
+
+        OrderSpecifier<Comparable<?>> notOrder = new OrderSpecifier<>(Order.ASC, Expressions.nullExpression());
+
+        return retrievePosts(accountDetail, pageable, contains, notOrder);
+    }
+
+    private List<PostResponseDto> retrievePosts(AccountDetail accountDetail, Pageable pageable,
+                                                BooleanExpression locationFilter, OrderSpecifier<?> specifier) {
+
         return queryFactory
 
                 .select(new QPostResponseDto(
@@ -65,13 +83,13 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .innerJoin(account.picture, picture)
                 .innerJoin(post.location, location)
 
-                .where(JTSGeometryExpressions.asJTSGeometry(locationSupplier.newPoint(latLng.lat, latLng.lng))
-                                .buffer(geometryDistance.distance())
-                                .contains(location.point),
+                .where(locationFilter,
                         post.locationAvailable.isTrue(),
                         post.visibility.eq(Visibility.PUBLIC)
                                 .or(accountPrivatePost(accountDetail))
                 )
+
+                .orderBy(specifier)
 
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -82,49 +100,15 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     @Override
     public List<PostResponseDto> retrievePosts(AccountDetail accountDetail, Resolution resolution, List<Long> h3Indexes,
                                                Pageable pageable) {
-        BooleanExpression expression = resolutionExpressions.getOrDefault(resolution, ignore -> {
+
+        NumberPath<Long> resPath = resolutionPaths.getOrDefault(resolution, () -> {
             throw new IllegalStateException();
-        }).apply(h3Indexes);
+        }).get();
 
-        return retrievePostByH3Indexes(accountDetail, pageable, expression);
-    }
+        OrderSpecifier<Long> orderSpecifier = new OrderSpecifier<>(Order.DESC,
+                SQLExpressions.rowNumber().over().partitionBy(resPath));
 
-    private BooleanExpression res4Expression(List<Long> h3Res4Indexes) {
-        return location.h3Res4.in(h3Res4Indexes);
-    }
-
-    private BooleanExpression res6Expression(List<Long> h3Res6Indexes) {
-        return location.h3Res6.in(h3Res6Indexes);
-    }
-
-    private List<PostResponseDto> retrievePostByH3Indexes(AccountDetail accountDetail, Pageable pageable,
-                                                          BooleanExpression locationH3IndexIn) {
-        return queryFactory
-
-                .select(new QPostResponseDto(
-                        post.id,
-                        account.id,
-                        account.nickname,
-                        picture,
-                        post.content,
-                        location.point))
-
-                .from(post)
-
-                .innerJoin(post.account, account)
-                .innerJoin(account.picture, picture)
-                .innerJoin(post.location, location)
-
-                .where(locationH3IndexIn,
-                        post.locationAvailable.isTrue(),
-                        post.visibility.eq(Visibility.PUBLIC)
-                                .or(accountPrivatePost(accountDetail))
-                )
-
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-
-                .fetch();
+        return retrievePosts(accountDetail, pageable, resPath.in(h3Indexes), orderSpecifier);
     }
 
     private static BooleanExpression accountPrivatePost(AccountDetail accountDetail) {
