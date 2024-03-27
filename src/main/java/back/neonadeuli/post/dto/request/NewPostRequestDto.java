@@ -1,8 +1,5 @@
 package back.neonadeuli.post.dto.request;
 
-import back.neonadeuli.account.entity.Account;
-import back.neonadeuli.location.entity.Location;
-import back.neonadeuli.post.entity.Post;
 import back.neonadeuli.post.entity.Visibility;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
@@ -34,8 +31,4 @@ public class NewPostRequestDto {
     private String content;
 
     private List<MultipartFile> images;
-
-    public Post toPostEntity(Account account, Location location) {
-        return new Post(visibility, account, locationAvailable, content, location);
-    }
 }
