@@ -4,6 +4,7 @@ import back.neonadeuli.account.model.authonticate.AccountDetail;
 import back.neonadeuli.post.dto.request.NewPostRequestDto;
 import back.neonadeuli.post.dto.request.PostRequestDto;
 import back.neonadeuli.post.dto.response.PostResponseDto;
+import back.neonadeuli.post.entity.Visibility;
 import back.neonadeuli.post.service.PostService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,19 +29,27 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<Long> writePost(@ModelAttribute @Valid NewPostRequestDto requestDto,
-                                          BindingResult bindingResult,
-                                          @AuthenticationPrincipal AccountDetail accountDetail) {
+                                          BindingResult bindingResult) {
 
-        return ResponseEntity.ok(postService.uploadNewPost(requestDto, accountDetail));
+        Visibility visibility = requestDto.getVisibility();
+        String content = requestDto.getContent();
+        Boolean locationAvailable = requestDto.getLocationAvailable();
+        Double lat = requestDto.getLat();
+        Double lng = requestDto.getLng();
+        List<MultipartFile> images = requestDto.getImages();
+
+        Long postId = postService.uploadNewPost(visibility, content, locationAvailable, lat, lng, images);
+
+        return ResponseEntity.ok(postId);
     }
 
     @GetMapping("/geo")
     public ResponseEntity<List<PostResponseDto>> getGeoFeed(@AuthenticationPrincipal AccountDetail accountDetail,
                                                             @ModelAttribute PostRequestDto postRequestDto,
-                                                            Pageable pageable) {
+                                                            BindingResult bindingResult, Pageable pageable) {
 
-        List<PostResponseDto> posts = postService.getPosts(accountDetail, postRequestDto.getLatLng(),
-                postRequestDto.getZoomLevel(), pageable);
+        List<PostResponseDto> posts = postService.getPosts(accountDetail, postRequestDto.getLat(),
+                postRequestDto.getLng(), postRequestDto.getZoomLevel(), pageable);
 
         return ResponseEntity.ok(posts);
     }
