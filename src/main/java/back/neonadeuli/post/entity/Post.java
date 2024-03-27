@@ -52,24 +52,24 @@ public class Post {
 
     @Column
     @NotNull
-    private Boolean locationAvailable;
+    private String content;
 
     @Column
     @NotNull
-    private String content;
+    private Boolean locationAvailable;
 
-    @OneToOne(cascade = {PERSIST, MERGE, REFRESH, DETACH})
+    @OneToOne
     @JoinColumn(name = "location_id")
     Location location;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.EAGER, cascade = {PERSIST, MERGE, REFRESH, DETACH})
     List<PostPicture> postPictures = new ArrayList<>();
 
-    public Post(Visibility visibility, Account account, Boolean locationAvailable, String content, Location location) {
-        this.visibility = visibility;
+    public Post(Account account, String content, Visibility visibility, Boolean locationAvailable, Location location) {
         this.account = account;
-        this.locationAvailable = locationAvailable;
         this.content = content;
+        this.visibility = visibility;
+        this.locationAvailable = locationAvailable;
         this.location = location;
     }
 
