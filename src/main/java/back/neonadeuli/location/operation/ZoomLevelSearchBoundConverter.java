@@ -1,4 +1,4 @@
-package back.neonadeuli.location.model;
+package back.neonadeuli.location.operation;
 
 import static back.neonadeuli.location.model.Resolution.RES_4;
 import static back.neonadeuli.location.model.Resolution.RES_6;
@@ -18,6 +18,9 @@ import static back.neonadeuli.location.model.ZoomLevel.LEVEL_7;
 import static back.neonadeuli.location.model.ZoomLevel.LEVEL_8;
 import static back.neonadeuli.location.model.ZoomLevel.LEVEL_9;
 
+import back.neonadeuli.location.model.GeometryDistance;
+import back.neonadeuli.location.model.SearchBound;
+import back.neonadeuli.location.model.ZoomLevel;
 import java.util.EnumMap;
 import java.util.Map;
 import org.springframework.stereotype.Component;
