@@ -1,7 +1,6 @@
 package back.neonadeuli.location.model;
 
 import com.uber.h3core.H3Core;
-import com.uber.h3core.util.LatLng;
 import java.io.IOException;
 import java.util.List;
 import lombok.Getter;
@@ -26,15 +25,15 @@ public enum Resolution {
     private final int level;
 
     public H3Cell calculateH3Cell(int cellSpacingDistance) {
-        return new H3Cell(this, latLng -> latLngToH3Indexes(latLng, cellSpacingDistance));
+        return new H3Cell(this, (lat, lng) -> latLngToH3Indexes(lat, lng, cellSpacingDistance));
     }
 
-    private List<Long> latLngToH3Indexes(LatLng latLng, int cellSpacingDistance) {
-        long middleH3Index = latLngToH3Index(latLng);
+    private List<Long> latLngToH3Indexes(double lat, double lng, int cellSpacingDistance) {
+        long middleH3Index = latLngToH3Index(lat, lng);
         return H3.gridDisk(middleH3Index, cellSpacingDistance);
     }
 
-    public long latLngToH3Index(LatLng latLng) {
-        return H3.latLngToCell(latLng.lat, latLng.lng, this.level);
+    public long latLngToH3Index(double lat, double lng) {
+        return H3.latLngToCell(lat, lng, this.level);
     }
 }

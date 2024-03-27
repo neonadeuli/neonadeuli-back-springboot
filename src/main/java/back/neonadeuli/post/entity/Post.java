@@ -1,19 +1,30 @@
 package back.neonadeuli.post.entity;
 
+import static jakarta.persistence.CascadeType.DETACH;
+import static jakarta.persistence.CascadeType.MERGE;
+import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.CascadeType.REFRESH;
+
 import back.neonadeuli.account.entity.Account;
 import back.neonadeuli.location.entity.Location;
+import back.neonadeuli.picture.entity.Picture;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,21 +52,33 @@ public class Post {
 
     @Column
     @NotNull
-    private Boolean locationAvailable;
+    private String content;
 
     @Column
     @NotNull
-    private String content;
+    private Boolean locationAvailable;
 
     @OneToOne
     @JoinColumn(name = "location_id")
     Location location;
 
-    public Post(Visibility visibility, Account account, Boolean locationAvailable, String content, Location location) {
-        this.visibility = visibility;
+    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER, cascade = {PERSIST, MERGE, REFRESH, DETACH})
+    List<PostPicture> postPictures = new ArrayList<>();
+
+    public Post(Account account, String content, Visibility visibility, Boolean locationAvailable, Location location) {
         this.account = account;
-        this.locationAvailable = locationAvailable;
         this.content = content;
+        this.visibility = visibility;
+        this.locationAvailable = locationAvailable;
         this.location = location;
+    }
+
+    public void addPictures(List<Picture> pictures) {
+        List<PostPicture> convertPostPictures = pictures.stream()
+                .filter(Objects::nonNull)
+                .map(picture -> new PostPicture(this, picture))
+                .toList();
+
+        postPictures.addAll(convertPostPictures);
     }
 }

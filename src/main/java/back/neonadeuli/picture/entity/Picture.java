@@ -4,22 +4,20 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
+import org.springframework.web.multipart.MultipartFile;
 
 @Entity
 @Table(name = "pictures")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Picture {
-
-    public static final UUID DEFAULT_UUID = UUID.fromString("222f1dcb-80fa-46fe-a055-1214fe176561");
 
     @Id
     @Column
@@ -38,10 +36,14 @@ public class Picture {
     @NotNull
     private String extension;
 
-    public Picture(String folderName, String originName, String extension) {
+    @Transient
+    private MultipartFile multipartFile;
+
+    public Picture(String folderName, String originName, String extension, MultipartFile multipartFile) {
         this.folderName = folderName;
         this.originName = originName;
         this.extension = extension;
+        this.multipartFile = multipartFile;
     }
 
     public String getSavePath() {
