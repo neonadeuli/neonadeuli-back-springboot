@@ -1,23 +1,22 @@
 package back.neonadeuli.post.dto.request;
 
-import com.uber.h3core.util.LatLng;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostRequestDto {
 
-    private double lat;
+    @NotNull
+    private Double lat;
 
-    private double lng;
+    @NotNull
+    private Double lng;
 
-    @Getter
-    private double zoomLevel;
-
-    public LatLng getLatLng() {
-        return new LatLng(lat, lng);
-    }
+    @NotNull
+    private Double zoomLevel;
 }
