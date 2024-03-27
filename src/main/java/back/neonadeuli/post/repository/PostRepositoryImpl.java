@@ -7,7 +7,6 @@ import static back.neonadeuli.post.entity.QPost.post;
 
 import back.neonadeuli.account.model.authonticate.AccountDetail;
 import back.neonadeuli.location.model.GeometryDistance;
-import back.neonadeuli.location.model.LocationSupplier;
 import back.neonadeuli.location.model.Resolution;
 import back.neonadeuli.post.dto.response.PostResponseDto;
 import back.neonadeuli.post.dto.response.QPostResponseDto;
@@ -20,13 +19,13 @@ import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.spatial.locationtech.jts.JTSGeometryExpressions;
 import com.querydsl.sql.SQLExpressions;
-import com.uber.h3core.util.LatLng;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.Pageable;
 
 @RequiredArgsConstructor
@@ -47,15 +46,13 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     private final JPAQueryFactory queryFactory;
-    private final LocationSupplier locationSupplier;
 
     @Override
-    public List<PostResponseDto> retrievePosts(AccountDetail accountDetail, LatLng latLng,
+    public List<PostResponseDto> retrievePosts(AccountDetail accountDetail, Point point,
                                                GeometryDistance geometryDistance,
                                                Pageable pageable) {
 
-        BooleanExpression contains = JTSGeometryExpressions.asJTSGeometry(
-                        locationSupplier.newPoint(latLng.lat, latLng.lng))
+        BooleanExpression contains = JTSGeometryExpressions.asJTSGeometry(point)
                 .buffer(geometryDistance.distance())
                 .contains(location.point);
 
